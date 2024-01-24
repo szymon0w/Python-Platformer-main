@@ -40,10 +40,10 @@ class Fire(Object):
     def __init__(self, x, y, width, height, window):
         super().__init__(x, y, width, height, "fire")
         self.fire = image_handler.load_sprite_sheets("Traps", "Fire", width, height, False, window)
-        self.image = self.fire["off"][0]
+        self.image = self.fire["on"][0]
         self.mask = pygame.mask.from_surface(self.image)
         self.animation_count = 0
-        self.animation_name = "off"
+        self.animation_name = "on"
 
     def on(self):
         self.animation_name = "on"
