@@ -6,9 +6,9 @@ class Player(pygame.sprite.Sprite):
     GRAVITY = 1
     ANIMATION_DELAY = 5
 
-    def __init__(self, x, y, width, height, window):
+    def __init__(self, player_position, width, height, window):
         super().__init__()
-        self.rect = pygame.Rect(x, y, width, height)
+        self.rect = pygame.Rect(player_position[0], player_position[1], width, height)
         self.x_vel = 0
         self.y_vel = 0
         self.mask = None

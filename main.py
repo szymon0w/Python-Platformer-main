@@ -3,7 +3,7 @@ from os.path import join
 import common.globals as globals
 from components.player import Player
 import components.map_objects as map_objects
-from common.maps import maps
+import json
 
 
 pygame.init()
@@ -92,11 +92,13 @@ def main(window):
     background, bg_image = get_background("Blue.png")
 
     block_size = 96
-
-    player = Player(100, 100, 50, 50, window)
+    map = None
+    with open('assets/maps.json') as f:
+        map = json.load(f)["maps"][1]
+    player = Player(map["player_position"], 50, 50, window)
+    floor = [map_objects.Block(x * block_size, y * block_size, block_size) for y in range(len(map["level"])) for x in range(len(map["level"][0])) if map["level"][y][x] == 1]
+    fires = [map_objects.Fire(x * block_size + 32, y * block_size+32, 16, 32, window) for y in range(len(map["level"])) for x in range(len(map["level"][0])) if map["level"][y][x] == 2]
     
-    floor = [map_objects.Block(x * block_size, y * block_size, block_size) for y in range(len(maps[0])) for x in range(len(maps[0][0])) if maps[0][y][x] == 1]
-    fires = [map_objects.Fire(x * block_size + 32, y * block_size+32, 16, 32, window) for y in range(len(maps[0])) for x in range(len(maps[0][0])) if maps[0][y][x] == 2]
     objects = [*floor, *fires]
 
     offset_x = 0
@@ -116,8 +118,9 @@ def main(window):
                     player.jump()
 
         player.loop(globals.FPS)
-        (fire.loop() for fire in fires)
-        print(fires[0].animation_count)
+        [fire.loop() for fire in fires]
+            
+        
         handle_move(player, objects)
         draw(window, background, bg_image, player, objects, offset_x)
 

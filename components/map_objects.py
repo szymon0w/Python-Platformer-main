@@ -53,11 +53,10 @@ class Fire(Object):
 
     def loop(self):
         sprites = self.fire[self.animation_name]
-        sprite_index = (self.animation_count //
-                        self.ANIMATION_DELAY) % len(sprites)
+        sprite_index = int((self.animation_count //
+                        self.ANIMATION_DELAY) % len(sprites))
         self.image = sprites[sprite_index]
-        self.animation_count += 1
-
+        self.animation_count += 0.5
         self.rect = self.image.get_rect(topleft=(self.rect.x, self.rect.y))
         self.mask = pygame.mask.from_surface(self.image)
 
