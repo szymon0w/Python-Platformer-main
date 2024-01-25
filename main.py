@@ -3,6 +3,7 @@ from os.path import join
 import common.globals as globals
 from components.player import Player
 import components.map_objects as map_objects
+import json
 
 
 pygame.init()
@@ -91,14 +92,14 @@ def main(window):
     background, bg_image = get_background("Blue.png")
 
     block_size = 96
-
-    player = Player(100, 100, 50, 50, window)
-    fire = map_objects.Fire(100, globals.HEIGHT - block_size - 64, 16, 32, window)
-    fire.on()
-    floor = [map_objects.Block(i * block_size, globals.HEIGHT - block_size, block_size)
-             for i in range(-globals.WIDTH // block_size, (globals.WIDTH * 2) // block_size)]
-    objects = [*floor, map_objects.Block(0, globals.HEIGHT - block_size * 2, block_size),
-               map_objects.Block(block_size * 3, globals.HEIGHT - block_size * 4, block_size), fire]
+    map = None
+    with open('assets/maps.json') as f:
+        map = json.load(f)["maps"][1]
+    player = Player(map["player_position"], 50, 50, window)
+    floor = [map_objects.Block(x * block_size, y * block_size, block_size) for y in range(len(map["level"])) for x in range(len(map["level"][0])) if map["level"][y][x] == 1]
+    fires = [map_objects.Fire(x * block_size + 32, y * block_size+32, 16, 32, window) for y in range(len(map["level"])) for x in range(len(map["level"][0])) if map["level"][y][x] == 2]
+    
+    objects = [*floor, *fires]
 
     offset_x = 0
     scroll_area_width = 200
@@ -117,7 +118,9 @@ def main(window):
                     player.jump()
 
         player.loop(globals.FPS)
-        fire.loop()
+        [fire.loop() for fire in fires]
+            
+        
         handle_move(player, objects)
         draw(window, background, bg_image, player, objects, offset_x)
 
