@@ -1,5 +1,7 @@
 import pygame
+import common.globals as globals
 import common.image_handler as image_handler
+
 
 class Player(pygame.sprite.Sprite):
     COLOR = (255, 0, 0)
@@ -8,6 +10,8 @@ class Player(pygame.sprite.Sprite):
 
     def __init__(self, player_position, width, height, window):
         super().__init__()
+        self.health = 100
+        self.start_position = player_position
         self.rect = pygame.Rect(player_position[0], player_position[1], width, height)
         self.x_vel = 0
         self.y_vel = 0
@@ -33,6 +37,7 @@ class Player(pygame.sprite.Sprite):
 
     def make_hit(self):
         self.hit = True
+        self.health -= 10
 
     def move_left(self, vel):
         self.x_vel = -vel
@@ -47,16 +52,23 @@ class Player(pygame.sprite.Sprite):
             self.animation_count = 0
 
     def loop(self, fps):
-        self.y_vel += min(1, (self.fall_count / fps) * self.GRAVITY)
-        self.move(self.x_vel, self.y_vel)
+        if self.health <= 0 or self.rect.y > globals.HEIGHT:
+            self.rect.x = self.start_position[0]
+            self.rect.y = self.start_position[1]
+            self.health = 100
+            self.y_vel = 0
+        else:
+            self.y_vel += min(1, (self.fall_count / fps) * self.GRAVITY)
+            self.y_vel = min(self.y_vel, self.GRAVITY * 8)
+            self.move(self.x_vel, self.y_vel)
 
-        if self.hit:
-            self.hit_count += 1
-        if self.hit_count > fps * 2:
-            self.hit = False
-            self.hit_count = 0
+            if self.hit:
+                self.hit_count += 1
+            if self.hit_count > fps * 2:
+                self.hit = False
+                self.hit_count = 0
 
-        self.fall_count += 1
+            self.fall_count += 1
         self.update_sprite()
 
     def landed(self):
@@ -66,7 +78,7 @@ class Player(pygame.sprite.Sprite):
 
     def hit_head(self):
         self.count = 0
-        self.y_vel *= -1
+        self.y_vel = abs(self.y_vel)
 
     def update_sprite(self):
         sprite_sheet = "idle"

@@ -41,7 +41,7 @@ def handle_vertical_collision(player, objects, dy):
     collided_objects = []
     for obj in objects:
         if pygame.sprite.collide_mask(player, obj):
-            if dy > 0:
+            if dy > 0 and (abs(player.rect.bottom - obj.rect.top) < (player.rect.height/4)):
                 player.rect.bottom = obj.rect.top
                 player.landed()
             elif dy < 0:
@@ -101,9 +101,8 @@ def main(window):
     
     objects = [*floor, *fires]
 
-    offset_x = 0
     scroll_area_width = 200
-
+    offset_x = player.rect.left - scroll_area_width
     run = True
     while run:
         clock.tick(globals.FPS)
@@ -114,7 +113,7 @@ def main(window):
                 break
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and player.jump_count < 2:
+                if event.key == pygame.K_UP and player.jump_count < 2:
                     player.jump()
 
         player.loop(globals.FPS)
@@ -127,6 +126,8 @@ def main(window):
         if ((player.rect.right - offset_x >= globals.WIDTH - scroll_area_width) and player.x_vel > 0) or (
                 (player.rect.left - offset_x <= scroll_area_width) and player.x_vel < 0):
             offset_x += player.x_vel
+        if player.rect.left - offset_x < 0:
+            offset_x = player.rect.left - scroll_area_width
 
     pygame.quit()
     quit()
