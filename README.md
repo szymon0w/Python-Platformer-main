@@ -8,6 +8,7 @@ DONE:
 
 TODO:
 - add health bar
+- add up&down camera movement
 - add different types of ground (slippery, sticky, etc)
 - add possibility to add shapes of any type as a ground of the level
 - add level creator that will allow to draw levels
