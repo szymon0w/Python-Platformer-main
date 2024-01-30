@@ -106,6 +106,6 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.sprite.get_rect(topleft=(self.rect.x, self.rect.y))
         self.mask = pygame.mask.from_surface(self.sprite)
 
-    def draw(self, win, offset_x):
-        win.blit(self.sprite, (self.rect.x - offset_x, self.rect.y))
+    def draw(self, win, offset_x, offset_y):
+        win.blit(self.sprite, (self.rect.x - offset_x, self.rect.y- offset_y))
 

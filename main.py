@@ -25,14 +25,14 @@ def get_background(name):
     return tiles, image
 
 
-def draw(window, background, bg_image, player, objects, offset_x):
+def draw(window, background, bg_image, player, objects, offset_x, offset_y):
     for tile in background:
         window.blit(bg_image, tile)
 
     for obj in objects:
-        obj.draw(window, offset_x)
+        obj.draw(window, offset_x, offset_y)
 
-    player.draw(window, offset_x)
+    player.draw(window, offset_x, offset_y)
 
     pygame.display.update()
 
@@ -101,8 +101,10 @@ def main(window):
     
     objects = [*floor, *fires]
 
-    scroll_area_width = 200
+    scroll_area_width = globals.WIDTH//3
+    scroll_area_height = globals.HEIGHT//3
     offset_x = player.rect.left - scroll_area_width
+    offset_y = player.rect.top - scroll_area_height
     run = True
     while run:
         clock.tick(globals.FPS)
@@ -121,13 +123,19 @@ def main(window):
             
         
         handle_move(player, objects)
-        draw(window, background, bg_image, player, objects, offset_x)
+        draw(window, background, bg_image, player, objects, offset_x, offset_y)
 
         if ((player.rect.right - offset_x >= globals.WIDTH - scroll_area_width) and player.x_vel > 0) or (
                 (player.rect.left - offset_x <= scroll_area_width) and player.x_vel < 0):
             offset_x += player.x_vel
-        if player.rect.left - offset_x < 0:
+        if player.rect.left - offset_x < 0 or player.rect.left - offset_x > globals.WIDTH:
             offset_x = player.rect.left - scroll_area_width
+
+        if ((player.rect.bottom - offset_y >= globals.HEIGHT - scroll_area_height) and player.y_vel > 0) or (
+                (player.rect.top - offset_y <= scroll_area_height) and player.y_vel < 0):
+            offset_y += player.y_vel
+        if player.rect.top - offset_y < 0 or player.rect.top - offset_y > globals.HEIGHT:
+            offset_y = player.rect.top - scroll_area_height        
 
     pygame.quit()
     quit()
