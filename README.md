@@ -21,6 +21,7 @@ TODO:
 - check possibility of using AI (chatGpt API) for upgrading player weapons and skills try to use data gathered by microphone
 - add a lot of levels
 - try to somehow check if levels are possible to be completed and try to balance them
+- add different levels of difficulty by lowering player power and making opponents stronger
 
 ABANDONED:
 - if player is already in air he should be able to only jump once (??)
