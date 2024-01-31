@@ -9,6 +9,17 @@ import json
 pygame.init()
 pygame.display.set_caption("Platformer")
 
+pygame.mixer.init()
+chanel = pygame.mixer.Channel(7)
+chanel.set_volume(0, 1)
+welcome_sound = pygame.mixer.Sound('assets/Sound/welcome.mp3')
+welcome_sound.set_volume(0.1)
+music = pygame.mixer.Sound('assets/Sound/Music/Adventurous/Powerful.mp3')
+music.set_volume(0.1)
+snoring = pygame.mixer.Sound('assets/Sound/Sounds/snoring.mp3')
+welcome_sound.play()
+music.play(loops=-1)
+chanel.play(snoring)
 window = pygame.display.set_mode((globals.WIDTH, globals.HEIGHT))
 
 
