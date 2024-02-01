@@ -18,6 +18,7 @@ welcome_sound.play()
 music.play(loops=-1)
 
 window = pygame.display.set_mode((globals.WIDTH, globals.HEIGHT))
+level_number = 0
 
 
 def get_background(name):
@@ -93,21 +94,38 @@ def handle_move(player, objects):
     for obj in to_check:
         if obj and obj.name == "fire":
             player.make_hit()
+        elif obj and obj.name == "finish":
+            global level_number
+            level_number = level_number + 1
+            return(load_level())
+        
+
+def load_level(level_index = None):
+    global level_number
+    if not level_index:
+        level_index = level_number
+    block_size = 96
+    map = None
+    with open('assets/maps.json') as f:
+        map = json.load(f)["maps"][level_index]
+    level_data = {}
+    level_data["player"] = Player(map["player_position"], 50, 50, window)
+    level_data["floor"] = [map_objects.Block(x * block_size, y * block_size, block_size) for y in range(len(map["level"])) for x in range(len(map["level"][0])) if map["level"][y][x] == 1]
+    level_data["fires"] = [map_objects.Fire(x * block_size + 32, y * block_size+32, 16, 32, window) for y in range(len(map["level"])) for x in range(len(map["level"][0])) if map["level"][y][x] == 2]
+    level_data["finish"] = [map_objects.Finish(x * block_size + 32, y * block_size+32, 16, 32, window) for y in range(len(map["level"])) for x in range(len(map["level"][0])) if map["level"][y][x] == 3]
+    return level_data
 
 
 def main(window):
     clock = pygame.time.Clock()
     background, bg_image = get_background("Blue.png")
-
-    block_size = 96
-    map = None
-    with open('assets/maps.json') as f:
-        map = json.load(f)["maps"][1]
-    player = Player(map["player_position"], 50, 50, window)
-    floor = [map_objects.Block(x * block_size, y * block_size, block_size) for y in range(len(map["level"])) for x in range(len(map["level"][0])) if map["level"][y][x] == 1]
-    fires = [map_objects.Fire(x * block_size + 32, y * block_size+32, 16, 32, window) for y in range(len(map["level"])) for x in range(len(map["level"][0])) if map["level"][y][x] == 2]
+    level_data = load_level()
+    player = level_data["player"]
+    floor = level_data["floor"]
+    fires = level_data["fires"]
+    finish = level_data["finish"]
     
-    objects = [*floor, *fires]
+    objects = [*floor, *fires, *finish]
 
     scroll_area_width = globals.WIDTH//3
     scroll_area_height = globals.HEIGHT//3
@@ -126,11 +144,20 @@ def main(window):
                 if event.key == pygame.K_UP and player.jump_count < 2:
                     player.jump()
 
+
+
         player.loop(globals.FPS)
         [fire.loop() for fire in fires]
-            
-        
-        handle_move(player, objects)
+
+        new_level = handle_move(player, objects)
+        if new_level:
+            player = new_level["player"]
+            floor = new_level["floor"]
+            fires = new_level["fires"]
+            finish = new_level["finish"]
+            objects = [*floor, *fires, *finish]  
+            player.loop(globals.FPS)
+            [fire.loop() for fire in fires]
         draw(window, background, bg_image, player, objects, offset_x, offset_y)
 
         if ((player.rect.right - offset_x >= globals.WIDTH - scroll_area_width) and player.x_vel > 0) or (

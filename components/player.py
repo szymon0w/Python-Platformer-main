@@ -22,7 +22,7 @@ class Player(pygame.sprite.Sprite):
         self.jump_count = 0
         self.hit = False
         self.hit_count = 0
-        self.SPRITES = image_handler.load_sprite_sheets("MainCharacters", "NinjaFrog", 32, 32, True, window)
+        self.SPRITES = image_handler.load_sprite_sheets(32, 32, True, window, "MainCharacters", "NinjaFrog")
 
     def jump(self):
         self.y_vel = -self.GRAVITY * 8

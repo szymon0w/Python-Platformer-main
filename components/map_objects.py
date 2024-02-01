@@ -39,7 +39,7 @@ class Fire(Object):
 
     def __init__(self, x, y, width, height, window):
         super().__init__(x, y, width, height, "fire")
-        self.fire = image_handler.load_sprite_sheets("Traps", "Fire", width, height, False, window)
+        self.fire = image_handler.load_sprite_sheets( width, height, False, window, "Traps", "Fire")
         self.image = self.fire["on"][0]
         self.mask = pygame.mask.from_surface(self.image)
         self.animation_count = 0
@@ -53,6 +53,36 @@ class Fire(Object):
 
     def loop(self):
         sprites = self.fire[self.animation_name]
+        sprite_index = int((self.animation_count //
+                        self.ANIMATION_DELAY) % len(sprites))
+        self.image = sprites[sprite_index]
+        self.animation_count += 0.5
+        self.rect = self.image.get_rect(topleft=(self.rect.x, self.rect.y))
+        self.mask = pygame.mask.from_surface(self.image)
+
+        if self.animation_count // self.ANIMATION_DELAY > len(sprites):
+            self.animation_count = 0
+
+
+class Finish(Object):
+    ANIMATION_DELAY = 3
+
+    def __init__(self, x, y, width, height, window):
+        super().__init__(x, y, width, height, "finish")
+        self.finish = image_handler.load_sprite_sheets(width, height, False, window, "Items", "Checkpoints", "End")
+        self.image = self.finish["end"][0]
+        self.mask = pygame.mask.from_surface(self.image)
+        self.animation_count = 0
+        self.animation_name = "end"
+
+    def on(self):
+        self.animation_name = "end_moving"
+
+    def off(self):
+        self.animation_name = "end"
+
+    def loop(self):
+        sprites = self.finish[self.animation_name]
         sprite_index = int((self.animation_count //
                         self.ANIMATION_DELAY) % len(sprites))
         self.image = sprites[sprite_index]
