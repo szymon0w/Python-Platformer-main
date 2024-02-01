@@ -9,9 +9,12 @@ DONE:
 - add music and welcome sound to the game
 
 TODO:
+- add final point in game so if player get there level ends
+- change the look of the background add different themes, investigate if you can change everything to be darker or brighter
+- add map of the city with smith, alchemist, magicians, quests, etc. and possibility to move around the map
+- add possibility to talk with people on the map using your microphone (QA?, chatGPT?)
 - consult with the game developer and writer about the story
 - think about adding new developer to help you
-- change the look of the background add different themes, investigate if you can change everything to be darker or brighter
 - write unit tests for current functions
 - investigate possibility of writing automatic tests
 - control the bottom death line (mark it), make possible levels can be "infinite" height
@@ -37,8 +40,7 @@ snoring = pygame.mixer.Sound('assets/Sound/Sounds/snoring.mp3')
 chanel.play(snoring)
 ```
 - add a lot of levels with different themes (look and sound)
-- add map of the city with smith, alchemist, magicians, quests, etc. and possibility to move around the map
-- add possibility to talk with people on the map using your microphone (QA?, chatGPT?)
+
 - maybe add allies to the game that will fight among with you
 - try to somehow check if levels are possible to be completed and try to balance them
 - add different levels of difficulty by lowering player power and making opponents stronger
