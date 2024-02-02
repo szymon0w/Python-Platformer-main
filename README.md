@@ -7,9 +7,9 @@ DONE:
 - if player lose all his health he should be reborned on the start of the level
 - add up&down camera movement
 - add music and welcome sound to the game
+- add final point in game so if player get there he moves to the next level
 
 TODO:
-- add final point in game so if player get there level ends
 - change the look of the background add different themes, investigate if you can change everything to be darker or brighter
 - add map of the city with smith, alchemist, magicians, quests, etc. and possibility to move around the map
 - add possibility to talk with people on the map using your microphone (QA?, chatGPT?)
