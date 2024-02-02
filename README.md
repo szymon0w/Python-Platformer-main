@@ -14,6 +14,8 @@ TODO:
 - add map of the city with smith, alchemist, magicians, quests, etc. and possibility to move around the map
 - add possibility to talk with people on the map using your microphone (QA?, chatGPT?)
 - consult with the game developer and writer about the story
+- explore what assets you can use [itch.io](https://itch.io/game-assets)
+- add dying animation
 - think about adding new developer to help you
 - write unit tests for current functions
 - investigate possibility of writing automatic tests
@@ -40,7 +42,6 @@ snoring = pygame.mixer.Sound('assets/Sound/Sounds/snoring.mp3')
 chanel.play(snoring)
 ```
 - add a lot of levels with different themes (look and sound)
-
 - maybe add allies to the game that will fight among with you
 - try to somehow check if levels are possible to be completed and try to balance them
 - add different levels of difficulty by lowering player power and making opponents stronger
