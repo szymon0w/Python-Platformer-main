@@ -74,7 +74,6 @@ class Finish(Object):
         self.image = self.finish[self.animation_name][0]
         self.mask = pygame.mask.from_surface(self.image)
         self.animation_count = 0
-        print(self.finish[self.animation_name])
 
     def on(self):
         self.animation_name = "unfold_flag"
