@@ -1,3 +1,4 @@
+from collections import defaultdict
 import pygame
 from os.path import join
 import common.globals as globals
@@ -108,11 +109,20 @@ def load_level(level_index = None):
     map = None
     with open('assets/maps.json') as f:
         map = json.load(f)["maps"][level_index]
-    level_data = {}
+    level_data = defaultdict(list)
     level_data["player"] = Player(map["player_position"], 50, 50, window)
-    level_data["floor"] = [map_objects.Block(x * block_size, y * block_size, block_size) for y in range(len(map["level"])) for x in range(len(map["level"][0])) if map["level"][y][x] == 1]
-    level_data["fires"] = [map_objects.Fire(x * block_size + 32, y * block_size+32, 16, 32, window) for y in range(len(map["level"])) for x in range(len(map["level"][0])) if map["level"][y][x] == 2]
-    level_data["finish"] = [map_objects.Finish(x * block_size + 32, y * block_size+32, 16, 32, window) for y in range(len(map["level"])) for x in range(len(map["level"][0])) if map["level"][y][x] == 3]
+    for y in range(len(map["level"])):
+        for x in range(len(map["level"][0])):
+            value = map["level"][y][x]
+            match value:
+                case 1:
+                    level_data["floor"].append(map_objects.Block(x * block_size, y * block_size, block_size))
+                case 2:
+                    level_data["fires"].append(map_objects.Fire(x * block_size + 32, y * block_size + 32, 16, 32, window))
+                case 3:
+                    level_data["finish"].append(map_objects.Finish(x * block_size, y * block_size - 32, 64, 64, window))
+                case _:
+                    pass 
     return level_data
 
 
@@ -148,7 +158,7 @@ def main(window):
 
         player.loop(globals.FPS)
         [fire.loop() for fire in fires]
-
+        [flag.loop() for flag in finish]
         new_level = handle_move(player, objects)
         if new_level:
             player = new_level["player"]
@@ -158,8 +168,9 @@ def main(window):
             objects = [*floor, *fires, *finish]  
             player.loop(globals.FPS)
             [fire.loop() for fire in fires]
+            [flag.loop() for flag in finish]
         draw(window, background, bg_image, player, objects, offset_x, offset_y)
-
+        
         if ((player.rect.right - offset_x >= globals.WIDTH - scroll_area_width) and player.x_vel > 0) or (
                 (player.rect.left - offset_x <= scroll_area_width) and player.x_vel < 0):
             offset_x += player.x_vel
