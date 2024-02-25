@@ -27,23 +27,29 @@ def get_background(name):
     _, _, width, height = image.get_rect()
     tiles = []
 
-    for i in range(globals.WIDTH // width + 1):
-        for j in range(globals.HEIGHT // height + 1):
+    for i in range(-1 ,(globals.WIDTH // width) + 1):
+        for j in range(-1, (globals.HEIGHT // height) + 1):
             pos = (i * width, j * height)
             tiles.append(pos)
 
     return tiles, image
 
-
-def draw(window, background, bg_image, player, objects, offset_x, offset_y):
-    for tile in background:
-        window.blit(bg_image, tile)
-
+#effects = [{"offset_x":x, "offset_y":y, "image": image}, [second one]]
+def draw(window, background, bg_image, player, objects, offset_x, offset_y, effects = []):
+    window.fill((255, 255, 255))
+    # for tile in background:
+    #     window.blit(bg_image, tile)
     for obj in objects:
         obj.draw(window, offset_x, offset_y)
 
     player.draw(window, offset_x, offset_y)
 
+    darken_surface = pygame.Surface((globals.WIDTH, globals.HEIGHT), pygame.SRCALPHA)
+    darken_surface.fill((0, 0, 0, 150))
+    window.blit(darken_surface, (0, 0))
+    for effect in effects:
+        for tile in effect["tiles"]:
+            window.blit(effect["image"], ((tile[0]+effect["offset_x"])%(globals.WIDTH + (globals.BLOCK_SIZE*2)) - globals.BLOCK_SIZE, (tile[1]+effect["offset_y"])%(globals.HEIGHT + (2 * globals.BLOCK_SIZE)) - globals.BLOCK_SIZE))
     pygame.display.update()
 
 
@@ -127,14 +133,17 @@ def load_level(level_index = None):
 
 
 def main(window):
+
     clock = pygame.time.Clock()
-    background, bg_image = get_background("Blue.png")
+    background, bg_image = get_background("Brown.png")
+    tiles, image = get_background("Effects/rain.png")
+    rain = {"offset_x": 0, "offset_y": 0, "tiles": tiles, "image": image}
+    print(image)
     level_data = load_level()
     player = level_data["player"]
     floor = level_data["floor"]
     fires = level_data["fires"]
     finish = level_data["finish"]
-    
     objects = [*floor, *fires, *finish]
 
     scroll_area_width = globals.WIDTH//3
@@ -144,6 +153,8 @@ def main(window):
     run = True
     while run:
         clock.tick(globals.FPS)
+        rain["offset_x"] = (rain["offset_x"] + 5)
+        rain["offset_y"] = (rain["offset_y"] + 5)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -151,7 +162,7 @@ def main(window):
                 break
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP and player.jump_count < 2:
+                if event.key == pygame.K_SPACE and player.jump_count < 2:
                     player.jump()
 
 
@@ -169,7 +180,7 @@ def main(window):
             player.loop(globals.FPS)
             [fire.loop() for fire in fires]
             [flag.loop() for flag in finish]
-        draw(window, background, bg_image, player, objects, offset_x, offset_y)
+        draw(window, background, bg_image, player, objects, offset_x, offset_y, [rain])
         
         if ((player.rect.right - offset_x >= globals.WIDTH - scroll_area_width) and player.x_vel > 0) or (
                 (player.rect.left - offset_x <= scroll_area_width) and player.x_vel < 0):
