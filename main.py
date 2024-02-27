@@ -20,6 +20,7 @@ music.play(loops=-1)
 
 window = pygame.display.set_mode((globals.WIDTH, globals.HEIGHT))
 level_number = 0
+lava_img = pygame.image.load(join("assets", "Background", "lava.png"))
 
 
 def get_background(name):
@@ -43,6 +44,9 @@ def draw(window, background, bg_image, player, objects, offset_x, offset_y):
         obj.draw(window, offset_x, offset_y)
 
     player.draw(window, offset_x, offset_y)
+    for i in range (-5, 10):
+        window.blit(lava_img, (i*(767) - offset_x, globals.HEIGHT - offset_y))
+    
 
     pygame.display.update()
 
@@ -181,7 +185,9 @@ def main(window):
                 (player.rect.top - offset_y <= scroll_area_height) and player.y_vel < 0):
             offset_y += player.y_vel
         if player.rect.top - offset_y < 0 or player.rect.top - offset_y > globals.HEIGHT:
-            offset_y = player.rect.top - scroll_area_height        
+            offset_y = player.rect.top - scroll_area_height    
+
+        offset_y = min(offset_y, 160)    
 
     pygame.quit()
     quit()
