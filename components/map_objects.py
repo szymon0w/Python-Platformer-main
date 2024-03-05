@@ -14,16 +14,24 @@ def get_block(size):
 
 
 class Object(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height, name=None):
+    def __init__(self, x, y, width, height, name=None, light_radius = 0):
         super().__init__()
         self.rect = pygame.Rect(x, y, width, height)
         self.image = pygame.Surface((width, height), pygame.SRCALPHA)
         self.width = width
         self.height = height
         self.name = name
+        self.light_radius = light_radius
 
     def draw(self, win, offset_x, offset_y):
         win.blit(self.image, (self.rect.x - offset_x, self.rect.y - offset_y))
+    
+    def draw_light(self, surface, offset_x, offset_y):
+        if self.light_radius > 0:
+            x_pos = int(self.rect.x - offset_x + self.width/2)
+            y_pos = int(self.rect.y - offset_y + self.height/2)
+            pygame.draw.circle(surface, (255, 255, 255, 0), (x_pos, y_pos), self.light_radius)
+
 
 
 class Block(Object):
@@ -38,7 +46,7 @@ class Fire(Object):
     ANIMATION_DELAY = 3
 
     def __init__(self, x, y, width, height, window):
-        super().__init__(x, y, width, height, "fire")
+        super().__init__(x, y, width, height, "fire", 150)
         self.fire = image_handler.load_sprite_sheets( width, height, False, window, "Traps", "Fire")
         self.image = self.fire["on"][0]
         self.mask = pygame.mask.from_surface(self.image)

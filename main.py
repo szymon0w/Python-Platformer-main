@@ -39,11 +39,26 @@ def get_background(name):
 def draw(window, background, bg_image, player, objects, offset_x, offset_y):
     for tile in background:
         window.blit(bg_image, tile)
-
+    
     for obj in objects:
         obj.draw(window, offset_x, offset_y)
 
     player.draw(window, offset_x, offset_y)
+
+
+    darken_surface = pygame.Surface((globals.WIDTH, globals.HEIGHT), pygame.SRCALPHA)
+    for i in range(0, globals.HEIGHT, 10):
+        darken = min((255 - ((i + offset_y)//4)), 255)
+        darken = max(darken, 0)
+        pygame.draw.rect(darken_surface, (0, 0, 0, darken), pygame.Rect(0, i, globals.WIDTH, 10))
+    
+    for obj in objects:#darken_surface = 
+        obj.draw_light(darken_surface, offset_x, offset_y)    
+    window.blit(darken_surface, (0, 0))
+
+
+
+
     for i in range (-5, 10):
         window.blit(lava_img, (i*(767) - offset_x, globals.HEIGHT - offset_y))
     
@@ -132,7 +147,7 @@ def load_level(level_index = None):
 
 def main(window):
     clock = pygame.time.Clock()
-    background, bg_image = get_background("Blue.png")
+    background, bg_image = get_background("Bricks.png")
     level_data = load_level()
     player = level_data["player"]
     floor = level_data["floor"]
