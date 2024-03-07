@@ -10,9 +10,11 @@ DONE:
 - add music and welcome sound to the game
 - add final point in game so if player get there he moves to the next level
 - change the look of the background, investigate if you can change everything to be darker or brighter
+- control the bottom death line (mark it), make possible levels can be "infinite" height
 
 TODO:
 
+- add opponents to the game
 - add map of the city with smith, alchemist, magicians, quests, etc. and possibility to move around the map
 - add possibility to talk with people on the map using your microphone (QA?, chatGPT?)
 - consult with the game developer and writer about the story
@@ -22,7 +24,6 @@ TODO:
 - think about adding new developer to help you
 - write unit tests for current functions
 - investigate possibility of writing automatic tests
-- control the bottom death line (mark it), make possible levels can be "infinite" height
 - add health bar
 - add player statistics like (agility, strength, knowledge, charisma, reputation itp..) and block some abilities or make them stronger/weaker based on that
 - add different types of ground (slippery, sticky, etc)
@@ -32,7 +33,6 @@ TODO:
 - add moveable objects to the game
 - add some traps to the levels
 - add abilities as a game progress (shooting, double jump, grabbing things, hitting, assasination, sneaking etc..)
-- add opponents to the game
 - add attacking and some weapons
 - add opponents vision to the game to play 
 - make opponents intelligent by coding some actions or using AI
@@ -49,12 +49,12 @@ chanel.play(snoring)
 - try to somehow check if levels are possible to be completed and try to balance them
 - add different levels of difficulty by lowering player power and making opponents stronger
 - if there is no possibility of completing level player should be able to back up and train or exchange some abilities for another
-
+- add possibility to shoot the tongue and swing on it (if player in air) (if frog)
 
 RULES:
 - write unit tests for functions
 - use design patterns
-- add possibility to shoot the tongue and swing on it (if player in air) (if frog)
+
 
 
 
