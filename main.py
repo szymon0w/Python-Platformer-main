@@ -121,6 +121,7 @@ def handle_move(player, objects):
         
 
 def load_level(level_index = None):
+
     global level_number
     if not level_index:
         level_index = level_number
@@ -129,17 +130,19 @@ def load_level(level_index = None):
     with open('assets/maps.json') as f:
         map = json.load(f)["maps"][level_index]
     level_data = defaultdict(list)
-    level_data["player"] = Player(map["player_position"], 50, 50, window)
+    offset_y = 8 - len(map["level"])
     for y in range(len(map["level"])):
         for x in range(len(map["level"][0])):
             value = map["level"][y][x]
             match value:
                 case 1:
-                    level_data["floor"].append(map_objects.Block(x * block_size, y * block_size, block_size))
+                    level_data["floor"].append(map_objects.Block(x * block_size, (y + offset_y) * block_size, block_size))
                 case 2:
-                    level_data["fires"].append(map_objects.Fire(x * block_size + 32, y * block_size + 32, 16, 32, window))
+                    level_data["fires"].append(map_objects.Fire(x * block_size + 32, (y + offset_y) * block_size + 32, 16, 32, window))
                 case 3:
-                    level_data["finish"].append(map_objects.Finish(x * block_size, y * block_size - 32, 64, 64, window))
+                    level_data["finish"].append(map_objects.Finish(x * block_size, (y + offset_y) * block_size - 32, 64, 64, window))
+                case 4:
+                    level_data["player"] = Player((x * block_size, (y + offset_y) * block_size), 50, 50, window)
                 case _:
                     pass 
     return level_data
