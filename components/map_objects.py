@@ -76,7 +76,7 @@ class Finish(Object):
     ANIMATION_DELAY = 3
 
     def __init__(self, x, y, width, height, window):
-        super().__init__(x, y, width, height, "finish")
+        super().__init__(x, y, width, height, "finish", 100)
         self.finish = image_handler.load_sprite_sheets(width, height, False, window, "Items", "Checkpoints", "Checkpoint")
         self.animation_name = "unfold_flag"
         self.image = self.finish[self.animation_name][0]
