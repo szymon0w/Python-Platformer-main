@@ -8,7 +8,7 @@ class Character(pygame.sprite.Sprite):
     GRAVITY = 1
     ANIMATION_DELAY = 5
 
-    def __init__(self, position, width, height, character_name, window):
+    def __init__(self, position, width, height, character_name, window, is_player = False, lifes = 1):
         super().__init__()
         self.health = 100
         self.start_position = position
@@ -23,6 +23,8 @@ class Character(pygame.sprite.Sprite):
         self.hit = False
         self.hit_count = 0
         self.SPRITES = image_handler.load_sprite_sheets(32, 32, True, window, "MainCharacters", character_name)
+        self.is_player = is_player
+        self.lifes = lifes
 
     def jump(self):
         self.y_vel = -self.GRAVITY * 8
@@ -52,24 +54,29 @@ class Character(pygame.sprite.Sprite):
             self.animation_count = 0
 
     def loop(self, fps):
-        if self.health <= 0 or self.rect.y > globals.HEIGHT:
+        self.y_vel += min(1, (self.fall_count / fps) * self.GRAVITY)
+        self.y_vel = min(self.y_vel, self.GRAVITY * 8)
+        self.move(self.x_vel, self.y_vel)
+
+        if self.hit:
+            self.hit_count += 1
+        if self.hit_count > fps * 2:
+            self.hit = False
+            self.hit_count = 0
+
+        self.fall_count += 1
+        self.update_sprite()
+
+    def is_alive(self):
+        return (self.health > 0 and self.rect.y < globals.HEIGHT)
+    
+    def resurrect(self):
+        self.lifes -= 1
+        if self.lifes > 0:
             self.rect.x = self.start_position[0]
             self.rect.y = self.start_position[1]
             self.health = 100
             self.y_vel = 0
-        else:
-            self.y_vel += min(1, (self.fall_count / fps) * self.GRAVITY)
-            self.y_vel = min(self.y_vel, self.GRAVITY * 8)
-            self.move(self.x_vel, self.y_vel)
-
-            if self.hit:
-                self.hit_count += 1
-            if self.hit_count > fps * 2:
-                self.hit = False
-                self.hit_count = 0
-
-            self.fall_count += 1
-        self.update_sprite()
 
     def landed(self):
         self.fall_count = 0
