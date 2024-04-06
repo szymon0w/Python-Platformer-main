@@ -3,16 +3,16 @@ import common.globals as globals
 import common.image_handler as image_handler
 
 
-class Player(pygame.sprite.Sprite):
+class Character(pygame.sprite.Sprite):
     COLOR = (255, 0, 0)
     GRAVITY = 1
     ANIMATION_DELAY = 5
 
-    def __init__(self, player_position, width, height, window):
+    def __init__(self, position, width, height, character_name, window, is_player = False, lifes = 1):
         super().__init__()
         self.health = 100
-        self.start_position = player_position
-        self.rect = pygame.Rect(player_position[0], player_position[1], width, height)
+        self.start_position = position
+        self.rect = pygame.Rect(position[0], position[1], width, height)
         self.x_vel = 0
         self.y_vel = 0
         self.mask = None
@@ -22,7 +22,9 @@ class Player(pygame.sprite.Sprite):
         self.jump_count = 0
         self.hit = False
         self.hit_count = 0
-        self.SPRITES = image_handler.load_sprite_sheets(32, 32, True, window, "MainCharacters", "NinjaFrog")
+        self.SPRITES = image_handler.load_sprite_sheets(32, 32, True, window, "MainCharacters", character_name)
+        self.is_player = is_player
+        self.lifes = lifes
 
     def jump(self):
         self.y_vel = -self.GRAVITY * 8
@@ -52,24 +54,29 @@ class Player(pygame.sprite.Sprite):
             self.animation_count = 0
 
     def loop(self, fps):
-        if self.health <= 0 or self.rect.y > globals.HEIGHT:
+        self.y_vel += min(1, (self.fall_count / fps) * self.GRAVITY)
+        self.y_vel = min(self.y_vel, self.GRAVITY * 8)
+        self.move(self.x_vel, self.y_vel)
+
+        if self.hit:
+            self.hit_count += 1
+        if self.hit_count > fps * 2:
+            self.hit = False
+            self.hit_count = 0
+
+        self.fall_count += 1
+        self.update_sprite()
+
+    def is_alive(self):
+        return (self.health > 0 and self.rect.y < globals.HEIGHT)
+    
+    def resurrect(self):
+        self.lifes -= 1
+        if self.lifes > 0:
             self.rect.x = self.start_position[0]
             self.rect.y = self.start_position[1]
             self.health = 100
             self.y_vel = 0
-        else:
-            self.y_vel += min(1, (self.fall_count / fps) * self.GRAVITY)
-            self.y_vel = min(self.y_vel, self.GRAVITY * 8)
-            self.move(self.x_vel, self.y_vel)
-
-            if self.hit:
-                self.hit_count += 1
-            if self.hit_count > fps * 2:
-                self.hit = False
-                self.hit_count = 0
-
-            self.fall_count += 1
-        self.update_sprite()
 
     def landed(self):
         self.fall_count = 0

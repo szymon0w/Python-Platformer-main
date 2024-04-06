@@ -2,7 +2,7 @@ from collections import defaultdict
 import pygame
 from os.path import join
 import common.globals as globals
-from components.player import Player
+from components.characters import Character
 import components.map_objects as map_objects
 import json
 
@@ -36,23 +36,26 @@ def get_background(name):
     return tiles, image
 
 
-def draw(window, background, bg_image, player, objects, offset_x, offset_y):
+def draw(window, background, bg_image, player, opponents, objects, offset_x, offset_y):
     for tile in background:
         window.blit(bg_image, tile)
     
     for obj in objects:
         obj.draw(window, offset_x, offset_y)
+    
+    for opponent in opponents:
+        opponent.draw(window, offset_x, offset_y)
 
     player.draw(window, offset_x, offset_y)
 
 
     darken_surface = pygame.Surface((globals.WIDTH, globals.HEIGHT), pygame.SRCALPHA)
     for i in range(0, globals.HEIGHT, 10):
-        darken = min((255 - ((i + offset_y)//4)), 255)
+        darken = min((255 - ((i + offset_y)//4)), 240)
         darken = max(darken, 0)
         pygame.draw.rect(darken_surface, (0, 0, 0, darken), pygame.Rect(0, i, globals.WIDTH, 10))
     
-    for obj in objects:#darken_surface = 
+    for obj in objects:
         obj.draw_light(darken_surface, offset_x, offset_y)    
     window.blit(darken_surface, (0, 0))
 
@@ -82,41 +85,51 @@ def handle_vertical_collision(player, objects, dy):
     return collided_objects
 
 
-def collide(player, objects, dx):
-    player.move(dx, 0)
-    player.update()
+def collide(character, objects, dx):
+    character.move(dx, 0)
+    character.update()
     collided_object = None
     for obj in objects:
-        if pygame.sprite.collide_mask(player, obj):
+        if pygame.sprite.collide_mask(character, obj):
             collided_object = obj
             break
 
-    player.move(-dx, 0)
-    player.update()
+    character.move(-dx, 0)
+    character.update()
     return collided_object
 
-
-def handle_move(player, objects):
+def move_player(player, objects, opponents):
     keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]:
+        handle_move(player, objects, "left", globals.PLAYER_VEL)
+    elif keys[pygame.K_RIGHT]:
+        handle_move(player, objects, "right", globals.PLAYER_VEL)
+    else:
+        handle_move(player, objects, "", globals.PLAYER_VEL)
 
-    player.x_vel = 0
-    collide_left = collide(player, objects, -globals.PLAYER_VEL * 2)
-    collide_right = collide(player, objects, globals.PLAYER_VEL * 2)
 
-    if keys[pygame.K_LEFT] and not collide_left:
-        player.move_left(globals.PLAYER_VEL)
-    if keys[pygame.K_RIGHT] and not collide_right:
-        player.move_right(globals.PLAYER_VEL)
+    if pygame.sprite.spritecollideany(player, opponents):
+        player.make_hit()
 
-    vertical_collide = handle_vertical_collision(player, objects, player.y_vel)
+def handle_move(character, objects, direction, velocity):
+    character.x_vel = 0
+    collide_left = collide(character, objects, -velocity * 2)
+    collide_right = collide(character, objects, velocity * 2)
+
+    if direction == "left" and not collide_left:
+        character.move_left(velocity)
+    if direction == "right" and not collide_right:
+        character.move_right(velocity)
+
+    vertical_collide = handle_vertical_collision(character, objects, character.y_vel)
     to_check = [collide_left, collide_right, *vertical_collide]
 
     for obj in to_check:
         if obj and obj.name == "fire":
-            player.make_hit()
-        elif obj and obj.name == "finish":
+            character.make_hit()
+        elif character.is_player and obj and obj.name == "finish":
             global level_number
-            level_number = level_number + 1
+            level_number += 1
             return(load_level())
         
 
@@ -129,10 +142,11 @@ def load_level(level_index = None):
     map = None
     with open('assets/maps.json') as f:
         map = json.load(f)["maps"][level_index]
+
     level_data = defaultdict(list)
     offset_y = 8 - len(map["level"])
     for y in range(len(map["level"])):
-        for x in range(len(map["level"][0])):
+        for x in range(len(map["level"][level_index])):
             value = map["level"][y][x]
             match value:
                 case 1:
@@ -142,7 +156,9 @@ def load_level(level_index = None):
                 case 3:
                     level_data["finish"].append(map_objects.Finish(x * block_size, (y + offset_y) * block_size - 32, 64, 64, window))
                 case 4:
-                    level_data["player"] = Player((x * block_size, (y + offset_y) * block_size), 50, 50, window)
+                    level_data["player"] = Character((x * block_size, (y + offset_y) * block_size), 50, 50, "NinjaFrog", window, True, 100)
+                case 5:
+                    level_data["opponents"].append(Character((x * block_size, (y + offset_y) * block_size), 50, 50, "MaskDude", window))
                 case _:
                     pass 
     return level_data
@@ -153,6 +169,7 @@ def main(window):
     background, bg_image = get_background("Bricks.png")
     level_data = load_level()
     player = level_data["player"]
+    opponents = level_data["opponents"]
     floor = level_data["floor"]
     fires = level_data["fires"]
     finish = level_data["finish"]
@@ -176,22 +193,35 @@ def main(window):
                 if event.key == pygame.K_UP and player.jump_count < 2:
                     player.jump()
 
-
-
-        player.loop(globals.FPS)
+        
+        if player.is_alive():
+            player.loop(globals.FPS)
+        else:
+            player.resurrect()
         [fire.loop() for fire in fires]
         [flag.loop() for flag in finish]
-        new_level = handle_move(player, objects)
+        new_level = move_player(player, objects, opponents)
+        for opponent in opponents:
+            if opponent.is_alive():
+                opponent.loop(globals.FPS)
+                if opponent.rect.x > player.rect.x:
+                    handle_move(opponent, objects, "left", globals.OPPONENT_VEL)
+                else:
+                    handle_move(opponent, objects, "right", globals.OPPONENT_VEL)
+        
+            
         if new_level:
             player = new_level["player"]
+            opponents = level_data["opponents"]
             floor = new_level["floor"]
             fires = new_level["fires"]
             finish = new_level["finish"]
+
             objects = [*floor, *fires, *finish]  
             player.loop(globals.FPS)
             [fire.loop() for fire in fires]
             [flag.loop() for flag in finish]
-        draw(window, background, bg_image, player, objects, offset_x, offset_y)
+        draw(window, background, bg_image, player, opponents, objects, offset_x, offset_y)
         
         if ((player.rect.right - offset_x >= globals.WIDTH - scroll_area_width) and player.x_vel > 0) or (
                 (player.rect.left - offset_x <= scroll_area_width) and player.x_vel < 0):
