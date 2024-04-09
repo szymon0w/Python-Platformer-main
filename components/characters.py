@@ -41,18 +41,15 @@ class Character(pygame.sprite.Sprite):
         self.hit = True
         self.health -= 10
 
-    def move_left(self, vel):
-        self.x_vel = -vel
-        if self.direction != "left":
+
+    def set_x_velocity(self, velocity):
+        self.x_vel = velocity
+        if velocity < 0 and self.direction != "left":
             self.direction = "left"
             self.animation_count = 0
-
-    def move_right(self, vel):
-        self.x_vel = vel
-        if self.direction != "right":
+        if velocity > 0 and self.direction != "right":
             self.direction = "right"
             self.animation_count = 0
-
     def loop(self, fps):
         self.y_vel += min(1, (self.fall_count / fps) * self.GRAVITY)
         self.y_vel = min(self.y_vel, self.GRAVITY * 8)
