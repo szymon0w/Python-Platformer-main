@@ -12,10 +12,10 @@ DONE:
 - change the look of the background, investigate if you can change everything to be darker or brighter
 - control the bottom death line (mark it), make possible levels can be "infinite" height
 - add opponents to the game
+- fix the bug that is making you fall when jumping with touching a wall
 
 TODO:
 
-- fix the bug that is making you fall when jumping with touching a wall
 - make opponents intelligent by coding some actions (dont jump to lava) or using AI
 - add abilities as a game progress (shooting, double jump, grabbing things, hitting, assasination, sneaking etc..)
 - add attacking and some weapons
