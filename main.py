@@ -69,14 +69,14 @@ def draw(window, background, bg_image, player, opponents, objects, offset_x, off
     pygame.display.update()
 
 
-def handle_vertical_collision(player, objects, dy):
+def handle_vertical_collision(player, objects, y_vel):
     collided_objects = []
     for obj in objects:
         if pygame.sprite.collide_mask(player, obj):
-            if dy > 0 and (abs(player.rect.bottom - obj.rect.top) < (player.rect.height/4)):
+            if y_vel > 0 and (abs(player.rect.bottom - obj.rect.top) < (player.rect.height/4)):
                 player.rect.bottom = obj.rect.top
                 player.landed()
-            elif dy < 0:
+            elif y_vel < 0:
                 player.rect.top = obj.rect.bottom
                 player.hit_head()
 
@@ -88,15 +88,14 @@ def handle_vertical_collision(player, objects, dy):
 def collide(character, objects, dx):
     character.move(dx, 0)
     character.update()
-    collided_object = None
+    collided_objects = []
     for obj in objects:
-        if pygame.sprite.collide_mask(character, obj):
-            collided_object = obj
-            break
+        if pygame.sprite.collide_mask(obj, character):
+            collided_objects.append(obj)
 
     character.move(-dx, 0)
     character.update()
-    return collided_object
+    return collided_objects
 
 def move_player(player, objects, opponents):
     keys = pygame.key.get_pressed()
@@ -113,16 +112,16 @@ def move_player(player, objects, opponents):
 
 def handle_move(character, objects, direction, velocity):
     character.x_vel = 0
-    collide_left = collide(character, objects, -velocity * 2)
-    collide_right = collide(character, objects, velocity * 2)
 
+    collide_left = collide(character, objects, -velocity * 3)
+    collide_right = collide(character, objects, velocity * 3)  
     if direction == "left" and not collide_left:
         character.move_left(velocity)
-    if direction == "right" and not collide_right:
+    elif direction == "right" and not collide_right:
         character.move_right(velocity)
 
     vertical_collide = handle_vertical_collision(character, objects, character.y_vel)
-    to_check = [collide_left, collide_right, *vertical_collide]
+    to_check = [*collide_left, *collide_right, *vertical_collide]
 
     for obj in to_check:
         if obj and obj.name == "fire":
