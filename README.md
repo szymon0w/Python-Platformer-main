@@ -13,13 +13,14 @@ DONE:
 - control the bottom death line (mark it), make possible levels can be "infinite" height
 - add opponents to the game
 - fix the bug that is making you fall when jumping with touching a wall
+- make opponents stay on the ground instead of falling
 
 TODO:
 
-- make opponents intelligent by coding some actions (dont jump to lava) or using AI
+- add health bar and lifes
+- make opponents intelligent by coding some actions or using AI
 - add abilities as a game progress (shooting, double jump, grabbing things, hitting, assasination, sneaking etc..)
 - add attacking and some weapons
-- add health bar
 - add map of the city with smith, alchemist, magicians, quests, etc. and possibility to move around the map
 - add possibility to talk with people on the map using your microphone (QA?, chatGPT?)
 - check possibility of using AI (chatGpt API) for upgrading player weapons and skills try to use data gathered by microphone
