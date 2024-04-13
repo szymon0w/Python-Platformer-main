@@ -8,9 +8,8 @@ class Character(pygame.sprite.Sprite):
     GRAVITY = 1
     ANIMATION_DELAY = 5
 
-    def __init__(self, position, width, height, character_name, window, is_player = False, lifes = 1):
+    def __init__(self, position, width, height, character_name, window, is_player = False, lifes = float("inf")):
         super().__init__()
-        self.health = 100
         self.start_position = position
         self.rect = pygame.Rect(position[0], position[1], width, height)
         self.x_vel = 0
@@ -25,6 +24,11 @@ class Character(pygame.sprite.Sprite):
         self.SPRITES = image_handler.load_sprite_sheets(32, 32, True, window, "MainCharacters", character_name)
         self.is_player = is_player
         self.lifes = lifes
+        if self.is_player:
+            self.health = globals.PLAYER_HEALTH
+        else:
+            self.health = globals.OPPONENT_HEALTH
+        self.y_vel = 0
 
     def jump(self):
         self.y_vel = -self.GRAVITY * 8
@@ -41,18 +45,15 @@ class Character(pygame.sprite.Sprite):
         self.hit = True
         self.health -= 10
 
-    def move_left(self, vel):
-        self.x_vel = -vel
-        if self.direction != "left":
+
+    def set_x_velocity(self, velocity):
+        self.x_vel = velocity
+        if velocity < 0 and self.direction != "left":
             self.direction = "left"
             self.animation_count = 0
-
-    def move_right(self, vel):
-        self.x_vel = vel
-        if self.direction != "right":
+        if velocity > 0 and self.direction != "right":
             self.direction = "right"
             self.animation_count = 0
-
     def loop(self, fps):
         self.y_vel += min(1, (self.fall_count / fps) * self.GRAVITY)
         self.y_vel = min(self.y_vel, self.GRAVITY * 8)
@@ -75,7 +76,10 @@ class Character(pygame.sprite.Sprite):
         if self.lifes > 0:
             self.rect.x = self.start_position[0]
             self.rect.y = self.start_position[1]
-            self.health = 100
+            if self.is_player:
+                self.health = globals.PLAYER_HEALTH
+            else:
+                self.health = globals.OPPONENT_HEALTH
             self.y_vel = 0
 
     def landed(self):

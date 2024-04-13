@@ -51,7 +51,7 @@ def draw(window, background, bg_image, player, opponents, objects, offset_x, off
 
     darken_surface = pygame.Surface((globals.WIDTH, globals.HEIGHT), pygame.SRCALPHA)
     for i in range(0, globals.HEIGHT, 10):
-        darken = min((255 - ((i + offset_y)//4)), 240)
+        darken = min((255 - ((i + offset_y)//4)), 200)
         darken = max(darken, 0)
         pygame.draw.rect(darken_surface, (0, 0, 0, darken), pygame.Rect(0, i, globals.WIDTH, 10))
     
@@ -69,59 +69,67 @@ def draw(window, background, bg_image, player, opponents, objects, offset_x, off
     pygame.display.update()
 
 
-def handle_vertical_collision(player, objects, y_vel):
+def handle_vertical_collision(character, objects, y_vel):
     collided_objects = []
     for obj in objects:
-        if pygame.sprite.collide_mask(player, obj):
-            if y_vel > 0 and (abs(player.rect.bottom - obj.rect.top) < (player.rect.height/4)):
-                player.rect.bottom = obj.rect.top
-                player.landed()
+        if pygame.sprite.collide_mask(character, obj):
+            if y_vel > 0 and (abs(character.rect.bottom - obj.rect.top) < (character.rect.height/4)):
+                character.rect.bottom = obj.rect.top
+                character.landed()
             elif y_vel < 0:
-                player.rect.top = obj.rect.bottom
-                player.hit_head()
+                character.rect.top = obj.rect.bottom
+                character.hit_head()
 
             collided_objects.append(obj)
 
     return collided_objects
 
 
-def collide(character, objects, dx):
-    character.move(dx, 0)
+def collide(character, objects, dx, dy = 0):
+    character.move(dx, dy)
     character.update()
     collided_objects = []
     for obj in objects:
         if pygame.sprite.collide_mask(obj, character):
             collided_objects.append(obj)
 
-    character.move(-dx, 0)
+    character.move(-dx, -dy)
     character.update()
     return collided_objects
 
 def move_player(player, objects, opponents):
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
-        handle_move(player, objects, "left", globals.PLAYER_VEL)
+        new_level = handle_move(player, objects, -globals.PLAYER_VEL)
     elif keys[pygame.K_RIGHT]:
-        handle_move(player, objects, "right", globals.PLAYER_VEL)
+        new_level = handle_move(player, objects, globals.PLAYER_VEL)
     else:
-        handle_move(player, objects, "", globals.PLAYER_VEL)
+        new_level = handle_move(player, objects, 0)
 
 
     if pygame.sprite.spritecollideany(player, opponents):
         player.make_hit()
+    
+    return new_level
 
-def handle_move(character, objects, direction, velocity):
+def on_the_edge(character, objects, velocity):
+    if collide(character, objects, velocity, 20):
+        return False
+    else:
+        return True
+
+def handle_move(character, objects, velocity):
     character.x_vel = 0
 
-    collide_left = collide(character, objects, -velocity * 3)
-    collide_right = collide(character, objects, velocity * 3)  
-    if direction == "left" and not collide_left:
-        character.move_left(velocity)
-    elif direction == "right" and not collide_right:
-        character.move_right(velocity)
+    predicted_collisions = collide(character, objects, velocity * 3)
+    if not predicted_collisions:
+        character.set_x_velocity(velocity)
 
     vertical_collide = handle_vertical_collision(character, objects, character.y_vel)
-    to_check = [*collide_left, *collide_right, *vertical_collide]
+    if not character.is_player and on_the_edge(character, objects, velocity*10):
+        character.y_vel = 0
+        character.x_vel = 0
+    to_check = [*predicted_collisions, *vertical_collide]
 
     for obj in to_check:
         if obj and obj.name == "fire":
@@ -155,9 +163,9 @@ def load_level(level_index = None):
                 case 3:
                     level_data["finish"].append(map_objects.Finish(x * block_size, (y + offset_y) * block_size - 32, 64, 64, window))
                 case 4:
-                    level_data["player"] = Character((x * block_size, (y + offset_y) * block_size), 50, 50, "NinjaFrog", window, True, 100)
+                    level_data["player"] = Character((x * block_size, (y + offset_y) * block_size), 50, 50, "NinjaFrog", window, True, 3)
                 case 5:
-                    level_data["opponents"].append(Character((x * block_size, (y + offset_y) * block_size), 50, 50, "MaskDude", window))
+                    level_data["opponents"].append(Character((x * block_size, (y + offset_y) * block_size + 40), 50, 50, "MaskDude", window))
                 case _:
                     pass 
     return level_data
@@ -166,7 +174,7 @@ def load_level(level_index = None):
 def main(window):
     clock = pygame.time.Clock()
     background, bg_image = get_background("Bricks.png")
-    level_data = load_level()
+    level_data = load_level(0)
     player = level_data["player"]
     opponents = level_data["opponents"]
     floor = level_data["floor"]
@@ -197,21 +205,23 @@ def main(window):
             player.loop(globals.FPS)
         else:
             player.resurrect()
+            [opponent.resurrect() for opponent in opponents]
         [fire.loop() for fire in fires]
         [flag.loop() for flag in finish]
-        new_level = move_player(player, objects, opponents)
         for opponent in opponents:
             if opponent.is_alive():
                 opponent.loop(globals.FPS)
                 if opponent.rect.x > player.rect.x:
-                    handle_move(opponent, objects, "left", globals.OPPONENT_VEL)
+                    handle_move(opponent, objects, -globals.OPPONENT_VEL)
                 else:
-                    handle_move(opponent, objects, "right", globals.OPPONENT_VEL)
+                    handle_move(opponent, objects, globals.OPPONENT_VEL)
+        new_level = move_player(player, objects, opponents)
+
         
             
         if new_level:
             player = new_level["player"]
-            opponents = level_data["opponents"]
+            opponents = new_level["opponents"]
             floor = new_level["floor"]
             fires = new_level["fires"]
             finish = new_level["finish"]
