@@ -14,10 +14,10 @@ DONE:
 - add opponents to the game
 - fix the bug that is making you fall when jumping with touching a wall
 - make opponents stay on the ground instead of falling
+- add health bar and lifes
 
 TODO:
 
-- add health bar and lifes
 - make opponents intelligent by coding some actions or using AI
 - add abilities as a game progress (shooting, double jump, grabbing things, hitting, assasination, sneaking etc..)
 - add attacking and some weapons
