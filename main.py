@@ -21,6 +21,8 @@ music.play(loops=-1)
 window = pygame.display.set_mode((globals.WIDTH, globals.HEIGHT))
 level_number = 0
 lava_img = pygame.image.load(join("assets", "Background", "lava.png"))
+heart_img = pygame.image.load(join("assets", "MainCharacters", "heart.png"))
+heart_img = pygame.transform.scale(heart_img, (20, 20))
 
 
 def get_background(name):
@@ -64,6 +66,9 @@ def draw(window, background, bg_image, player, opponents, objects, offset_x, off
 
     for i in range (-5, 10):
         window.blit(lava_img, (i*(767) - offset_x, globals.HEIGHT - offset_y))
+
+    for i in range (player.lifes):
+        window.blit(heart_img, (globals.WIDTH - 30 - i * 22, 10))
     
 
     pygame.display.update()
