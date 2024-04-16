@@ -119,4 +119,9 @@ class Character(pygame.sprite.Sprite):
 
     def draw(self, win, offset_x, offset_y):
         win.blit(self.sprite, (self.rect.x - offset_x, self.rect.y- offset_y))
+        surface = pygame.Surface((self.rect.width + 4, 10))
+        pygame.draw.line(surface, globals.BLACK, (0, 5), (self.rect.width + 4, 5), 10)
+        pygame.draw.line(surface, globals.RED, (2, 4), (self.rect.width * self.health / 100 + 2, 4), 6)
+        win.blit(surface, (self.rect.x - offset_x, self.rect.y - offset_y - 10))
+
 
