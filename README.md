@@ -15,9 +15,12 @@ DONE:
 - fix the bug that is making you fall when jumping with touching a wall
 - make opponents stay on the ground instead of falling
 - add health bar and lifes
+- create a main menu
 
 TODO:
 
+- add level creator that will allow to draw levels
+- add settings that will allow to control sounds, game steering, game difficulty, etc
 - make opponents intelligent by coding some actions or using AI
 - add abilities as a game progress (shooting, double jump, grabbing things, hitting, assasination, sneaking etc..)
 - add attacking and some weapons
@@ -34,7 +37,6 @@ TODO:
 - add player statistics like (agility, strength, knowledge, charisma, reputation itp..) and block some abilities or make them stronger/weaker based on that
 - add different types of ground (slippery, sticky, etc)
 - add possibility to add shapes of any type as a ground of the level
-- add level creator that will allow to draw levels
 - add final point of the level if player is in the final point move him to the next level
 - add moveable objects to the game
 - add some traps to the levels
