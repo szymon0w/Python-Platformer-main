@@ -88,7 +88,7 @@ class Game:
                 if y_vel > 0 and (abs(character.rect.bottom - obj.rect.top) < (character.rect.height/4)):
                     character.rect.bottom = obj.rect.top
                     character.landed()
-                elif y_vel < 0:
+                elif y_vel < 0 and (character.rect.bottom - obj.rect.bottom) > 0:
                     character.rect.top = obj.rect.bottom
                     character.hit_head()
 
