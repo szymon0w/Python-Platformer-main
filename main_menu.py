@@ -2,6 +2,7 @@ import pygame
 import sys
 import common.globals as globals
 import game
+import level_creator
 import components.button as button
 import common.sounds as sounds
 # Initialize pygame
@@ -13,6 +14,7 @@ pygame.display.set_caption("Game Main Menu")
 clock = pygame.time.Clock()
 current_state = "main_menu"
 game_session = None
+level_creator_session = level_creator.LevelCreator(screen)
 sound = sounds.Sound()
 
 # Font
@@ -55,7 +57,6 @@ def display_levels():
 
     display_common_buttons(clicked)
 
-    pygame.display.update()
 
 def display_main_menu():
     clicked = events()
@@ -76,18 +77,13 @@ def display_settings():
 
     display_common_buttons(clicked)
 
-    pygame.display.update()
 
 # Function to display level creator
 def display_level_creator():
     global current_state
     current_state = "level_creator"
-    clicked = events()
-    print("Display Level Creator")  # Placeholder action, replace with your actual implementation
-
-    display_common_buttons(clicked)
-    
-    pygame.display.update()
+    level_creator_session.loop()
+    display_common_buttons(display_main_menu_btn = True, display_play_btn = False)
 
 
 def display_common_buttons(clicked = None, display_main_menu_btn = True, display_settings_btn = False, display_play_btn = True):
@@ -95,6 +91,7 @@ def display_common_buttons(clicked = None, display_main_menu_btn = True, display
 
     if not clicked:
         clicked = events()
+
     # Button to return to main menu
     # button.draw_button(screen, "Main Menu", globals.LEVELS_MENU_BUTTON_WIDTH * 0.2, 0.5 * globals.LEVELS_MENU_BUTTON_HEIGHT, globals.LEVELS_MENU_BUTTON_WIDTH, globals.LEVELS_MENU_BUTTON_HEIGHT, globals.GRAY, globals.BLACK, return_to_main_menu, clicked)
     if display_main_menu_btn:
@@ -134,7 +131,6 @@ def continue_playing():
 
 # Main loop
 def main_loop():
-    print("main_loop")
     while True:
         clock.tick(globals.FPS)
         screen.fill(globals.WHITE)
@@ -151,7 +147,7 @@ def main_loop():
                 display_level_creator()
             case "playing_game":
                 game_session.play()
-                display_common_buttons(display_main_menu_btn = False, display_settings_btn = True, display_play_btn = False)
+                display_common_buttons(display_main_menu_btn = True, display_settings_btn = True, display_play_btn = True)
 
         pygame.display.update()
 

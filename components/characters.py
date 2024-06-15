@@ -21,7 +21,7 @@ class Character(pygame.sprite.Sprite):
         self.jump_count = 0
         self.hit = False
         self.hit_count = 0
-        self.SPRITES = image_handler.load_sprite_sheets(32, 32, True, window, "MainCharacters", character_name)
+        self.SPRITES = image_handler.load_sprite_sheets(32, 32, True, "MainCharacters", character_name)
         self.is_player = is_player
         self.lifes = lifes
         if self.is_player:

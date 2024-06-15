@@ -1,9 +1,23 @@
 from os import listdir
 from os.path import isfile, join
 import pygame
+from common import globals
 
+class ImageHandler:
+    def __init__(self):
+        self.floor = self.load_image(join("assets", "Terrain", "ground.png"))
+        self.opponent = self.load_image(join("assets", "MainCharacters", "MaskDude", "jump.png"))
+        self.start = self.load_image(join("assets", "MainCharacters", "NinjaFrog", "jump.png"))
+        self.fire = self.load_image(join("assets", "Traps", "Fire", "fire.png"))
+        self.finish = self.load_image(join("assets", "Items", "Checkpoints", "Checkpoint", "flag.png"))
+        self.background = self.load_image(join("assets", "Background", "Bricks.png"))
 
-def load_sprite_sheets(width, height, direction, window, dir1, dir2, dir3 = ''):
+    def load_image(self, image_path, scale = (globals.GRID_SIZE, globals.GRID_SIZE)):
+        image = pygame.image.load(image_path)
+        image = pygame.transform.scale(image, scale)
+        return image
+
+def load_sprite_sheets(width, height, direction, dir1, dir2, dir3 = ''):
     if dir3:
         path = join("assets", dir1, dir2, dir3)
     else:
