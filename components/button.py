@@ -1,6 +1,6 @@
 import pygame
 from common import globals
-from os.path import join
+
 
 pygame.init()
 font = pygame.font.SysFont(None, 50)
@@ -24,11 +24,13 @@ def draw_button(screen, text, x, y, width, height, inactive_color, active_color,
     text_rect.center = ((x + width / 2), (y + height / 2))
     screen.blit(text_surface, text_rect)
 
-def draw_icon_button(screen, x, y, width, height, icon_name, action=None, clicked = False):
-    img = pygame.image.load(join("assets", "Icons", icon_name))
+def draw_icon_button(screen, x, y, width, height, img, action=None, clicked = False, parameter = None):
     img = pygame.transform.scale(img, (width, height))
     mouse = pygame.mouse.get_pos()
     screen.blit(img, (x, y))
     if x < mouse[0] < x + width and y < mouse[1] < y + height:
         if clicked and action is not None:
-            action()
+            if parameter is None:
+                action()
+            else:
+                action(parameter)

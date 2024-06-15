@@ -2,12 +2,13 @@ import pygame
 import json
 from common import globals
 from common.image_handler import ImageHandler
-
+import components.button as button
 # Initialize Pygame
 # pygame.init()
 
 class LevelCreator():
     def __init__(self, window):
+        self.level_number = None
         self.window = window
         self.image_handler = ImageHandler()
         self.ROWS, self.COLS = int(globals.HEIGHT * 0.8) // globals.GRID_SIZE, int(globals.WIDTH * 0.8) // globals.GRID_SIZE
@@ -24,24 +25,40 @@ class LevelCreator():
         }
         # Create a grid filled with 'empty'
         self.grid = [['empty' for _ in range(self.COLS)] for _ in range(self.ROWS)]
+
         self.unique_locations = {"start": None, "finish": None}
         # Current selected object
         self.current_object = 'empty'
         self.mouse_clicked = False
 
+    def load_level(self, level_number):
+        self.current_object = 'empty'
+        self.level_number = level_number
+        if level_number is None:
+            self.grid = [['empty' for _ in range(self.COLS)] for _ in range(self.ROWS)]
+        else:
+            with open("assets/maps.json", "r") as jsonFile:
+                data = json.load(jsonFile)
+            self.grid = data["maps"][self.level_number]["level"]
+            self.ROWS = len(self.grid)
+            self.COLS = len(self.grid[0])
+
+
     def draw_selection(self):
         x_location = globals.WIDTH * 0.25
         y_location = globals.HEIGHT * 0.1
         for key, value in self.OBJECT_IMAGES.items():
-            size = globals.GRID_SIZE
+            size = int(globals.GRID_SIZE * 1.5)
             if key == self.current_object:
-                size = int(globals.GRID_SIZE * 1.5)
-            rect = pygame.Rect(int(x_location - (0.5 * size)), (y_location - (0.5 * size)), size, size)
-            self.window.blit(value, rect)
-            x_location += int((globals.WIDTH * 0.5) / (len(self.OBJECT_IMAGES) - 1))
+                size *= 2
+            button.draw_icon_button(self.window, int(x_location - (0.5 * size)), (y_location - (0.5 * size)), size, size, value, self.set_current_object, pygame.mouse.get_pressed()[0], key)
+            x_location += int((globals.WIDTH * 0.5) / (len(self.OBJECT_IMAGES)))
+        size = int(globals.GRID_SIZE * 1.5)
+        button.draw_button(self.window, "Save",  int(x_location - (0.5 * size)), (y_location - (0.5 * globals.MAIN_MENU_BUTTON_HEIGHT)), globals.MAIN_MENU_BUTTON_WIDTH // 2, globals.MAIN_MENU_BUTTON_HEIGHT, globals.GRAY, globals.BLACK, self.save_grid_to_json, pygame.mouse.get_pressed()[0])
+        
 
-            
-
+    def set_current_object(self, value_to_set):
+        self.current_object = value_to_set
     def draw_grid(self):
         for row in range(self.ROWS):
             for col in range(self.COLS):
@@ -58,10 +75,16 @@ class LevelCreator():
             print('saving grid')
             with open("assets/maps.json", "r") as jsonFile:
                 data = json.load(jsonFile)
-            data["maps"].append({"level": self.grid})
+            if self.level_number is None:
+                data["maps"].append({"level": self.grid})
+            else: 
+                data["maps"][self.level_number] = ({"level": self.grid})
+                self.level_number = None
             with open('assets/maps.json', 'w') as f:
                 json.dump(data, f, indent=4)
+            self.ROWS, self.COLS = int(globals.HEIGHT * 0.8) // globals.GRID_SIZE, int(globals.WIDTH * 0.8) // globals.GRID_SIZE
             self.grid = [['empty' for _ in range(self.COLS)] for _ in range(self.ROWS)]
+            
 
 
     def loop(self):
@@ -82,8 +105,7 @@ class LevelCreator():
             self.current_object = 'start'
         elif keys[pygame.K_6]:
             self.current_object = 'opponent'
-        elif keys[pygame.K_s]:
-            self.save_grid_to_json()
+            
             
     
         self.mouse_clicked = pygame.mouse.get_pressed()[0]

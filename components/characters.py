@@ -15,13 +15,14 @@ class Character(pygame.sprite.Sprite):
         self.x_vel = 0
         self.y_vel = 0
         self.mask = None
-        self.direction = "left"
         self.animation_count = 0
         self.fall_count = 0
         self.jump_count = 0
         self.hit = False
         self.hit_count = 0
         self.SPRITES = image_handler.load_sprite_sheets(32, 32, True, "MainCharacters", character_name)
+        self.direction = "left"
+        self.sprite = self.SPRITES["idle_" + self.direction][0]
         self.is_player = is_player
         self.lifes = lifes
         if self.is_player:
