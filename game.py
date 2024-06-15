@@ -8,9 +8,6 @@ import sys
 import json
 
 
-# pygame.init()
-# pygame.display.set_caption("Platformer")
-
 lava_img = pygame.image.load(join("assets", "Background", "lava.png"))
 heart_img = pygame.image.load(join("assets", "MainCharacters", "heart.png"))
 heart_img = pygame.transform.scale(heart_img, (20, 20))
@@ -22,9 +19,9 @@ class Game:
         self.background, self.bg_image = self.get_background("Bricks.png")
         level_data = self.load_level()
         self.player = level_data["player"]
-        self.opponents = level_data["opponents"]
+        self.opponents = level_data["opponent"]
         self.floor = level_data["floor"]
-        self.fires = level_data["fires"]
+        self.fires = level_data["fire"]
         self.finish = level_data["finish"]
         self.objects = [*self.floor, *self.fires, *self.finish]
         self.scroll_area_width = globals.WIDTH//3
@@ -165,27 +162,22 @@ class Game:
             for x in range(len(map["level"][self.level_number])):
                 value = map["level"][y][x]
                 match value:
-                    case 1:
+                    case "floor":
                         level_data["floor"].append(map_objects.Block(x * globals.BLOCK_SIZE, (y + offset_y) * globals.BLOCK_SIZE, globals.BLOCK_SIZE))
-                    case 2:
-                        level_data["fires"].append(map_objects.Fire(x * globals.BLOCK_SIZE + 32, (y + offset_y) * globals.BLOCK_SIZE + 32, 16, 32, self.window))
-                    case 3:
+                    case "fire":
+                        level_data["fire"].append(map_objects.Fire(x * globals.BLOCK_SIZE + 32, (y + offset_y) * globals.BLOCK_SIZE + 32, 16, 32, self.window))
+                    case "finish":
                         level_data["finish"].append(map_objects.Finish(x * globals.BLOCK_SIZE, (y + offset_y) * globals.BLOCK_SIZE - 32, 64, 64, self.window))
-                    case 4:
+                    case "start":
                         level_data["player"] = Character((x * globals.BLOCK_SIZE, (y + offset_y) * globals.BLOCK_SIZE), 50, 50, "NinjaFrog", self.window, True, 5)
-                    case 5:
-                        level_data["opponents"].append(Character((x * globals.BLOCK_SIZE, (y + offset_y) * globals.BLOCK_SIZE + 40), 50, 50, "MaskDude", self.window))
+                    case "opponent":
+                        level_data["opponent"].append(Character((x * globals.BLOCK_SIZE, (y + offset_y) * globals.BLOCK_SIZE + 40), 50, 50, "MaskDude", self.window))
                     case _:
                         pass 
         return level_data
 
 
     def play(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-
         
         if self.player.is_alive():
             self.player.loop(globals.FPS)
@@ -207,9 +199,9 @@ class Game:
             
         if new_level:
             self.player = new_level["player"]
-            self.opponents = new_level["opponents"]
+            self.opponents = new_level["opponent"]
             self.floor = new_level["floor"]
-            self.fires = new_level["fires"]
+            self.fires = new_level["fire"]
             self.finish = new_level["finish"]
 
             self.objects = [*self.floor, *self.fires, *self.finish]  
@@ -230,7 +222,4 @@ class Game:
         if self.player.rect.top - self.offset_y < 0 or self.player.rect.top - self.offset_y > globals.HEIGHT:
             self.offset_y = self.player.rect.top - self.scroll_area_height    
 
-        self.offset_y = min(self.offset_y, 160)    
-
-    # pygame.quit()
-    # quit()
+        self.offset_y = min(self.offset_y, 160)

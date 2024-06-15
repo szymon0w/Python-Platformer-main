@@ -47,7 +47,7 @@ class Fire(Object):
 
     def __init__(self, x, y, width, height, window):
         super().__init__(x, y, width, height, "fire", 150)
-        self.fire = image_handler.load_sprite_sheets( width, height, False, window, "Traps", "Fire")
+        self.fire = image_handler.load_sprite_sheets( width, height, False, "Traps", "Fire")
         self.image = self.fire["on"][0]
         self.mask = pygame.mask.from_surface(self.image)
         self.animation_count = 0
@@ -77,7 +77,7 @@ class Finish(Object):
 
     def __init__(self, x, y, width, height, window):
         super().__init__(x, y, width, height, "finish", 100)
-        self.finish = image_handler.load_sprite_sheets(width, height, False, window, "Items", "Checkpoints", "Checkpoint")
+        self.finish = image_handler.load_sprite_sheets(width, height, False, "Items", "Checkpoints", "Checkpoint")
         self.animation_name = "unfold_flag"
         self.image = self.finish[self.animation_name][0]
         self.mask = pygame.mask.from_surface(self.image)
